@@ -108,7 +108,10 @@ class Commands(commands.Cog):
             await ctx.send("This is the development version of Arryn Aid.\n"
                             "-# Not intended for public use.")
             return
-        await ctx.send("This is the production version of Arryn Aid.")
+        msg = "This is the production version of Baratheon Backup."
+        if os.path.isfile("data/db.sqlite"):
+            msg += "\nDatabase found."
+        await ctx.send(msg)
 
 async def setup(bot):
     """
