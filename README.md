@@ -1,5 +1,5 @@
-# Arryn Aid
-Welcome to the Arryn Aid repo! This hosts the code used by the Discord bot in House Arryn.
+# Baratheon Backup
+Welcome to the Baratheon Backup repo! This hosts the code used by the Discord bot in House Arryn.
 ## Features
 **Reaction Roles:** Automated regional role assignment using message reactions.
 
@@ -32,4 +32,4 @@ Proof: [Image/Link]
 ## Questions/Concerns?
 DM MadTurtless on Discord.
 
-### As high as honor
+### Ours is the Fury
