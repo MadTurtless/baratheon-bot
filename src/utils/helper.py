@@ -7,12 +7,6 @@ from discord.ext import commands
 from src.classes.database_manager import DatabaseManager
 
 permitted_roles = [1490821033849262151, 1492250702955942029, 1383503369838002286]
-channels = {
-            int(os.getenv("ARRYN_LOGS_CHANNEL_ID")): "Arryn",
-            int(os.getenv("KNIGHTS_LOGS_CHANNEL_ID")): "Knights",
-            int(os.getenv("GUARDS_LOGS_CHANNEL_ID")): "Guards",
-            int(os.getenv("CAVALRY_LOGS_CHANNEL_ID")): "Cavalry"
-        }
 
 mgr = DatabaseManager()
 
@@ -78,7 +72,6 @@ def parse_event_log(message):
                         raw_ids = value.replace(",", " ").split(" ")
                         log["participants"] = [p.strip("<@!> ") for p in raw_ids if p.strip()]
     log["timestamp"] = datetime.now()
-    log["division"] = channels[message.channel.id]
     log["channel_id"] = message.channel.id
     log["msg_id"] = message.id
 

@@ -40,12 +40,6 @@ class EventLogsManager(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.db = DatabaseManager()
-        self.channels = {
-            int(os.getenv("ARRYN_LOGS_CHANNEL_ID")): "Arryn",
-            int(os.getenv("KNIGHTS_LOGS_CHANNEL_ID")): "Knights",
-            int(os.getenv("GUARDS_LOGS_CHANNEL_ID")): "Guards",
-            int(os.getenv("CAVALRY_LOGS_CHANNEL_ID")): "Cavalry"
-        }
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -59,7 +53,7 @@ class EventLogsManager(commands.Cog):
         if message.author.bot:
             return
 
-        if message.channel.id not in self.channels:
+        if not message.channel.id == int(os.getenv("LOGS_CHANNEL_ID")):
             return
 
         log = parse_event_log(message)
