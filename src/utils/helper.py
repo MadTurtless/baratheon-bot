@@ -74,7 +74,10 @@ def parse_event_log(message):
     log["channel_id"] = message.channel.id
     log["msg_id"] = message.id
 
-    log["participants"].append(log["host_id"])
+    try:
+        log["participants"].append(log["host_id"])
+    except KeyError:
+        pass
     return log
 
 def get_original_log(msg_id):
