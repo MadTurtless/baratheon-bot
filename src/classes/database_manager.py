@@ -39,7 +39,6 @@ class DatabaseManager:
         CREATE TABLE IF NOT EXISTS events
         (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            division    TEXT,
             type        TEXT,
             host_id     INTEGER,
             timestamp   TEXT,
@@ -123,7 +122,6 @@ class DatabaseManager:
         This function also calls the add_event_participants function.
         Expected format for the event dict:
         {
-        "division": string,
         "type": string,
         "host_id": int,
         "participants": list of integers,
@@ -131,9 +129,9 @@ class DatabaseManager:
         "msg_id": int,
         }
         """
-        query = "INSERT INTO events(division, type, host_id, timestamp, channel_id, msg_id) VALUES (?, ?, ?, ?, ?, ?)"
+        query = "INSERT INTO events(type, host_id, timestamp, channel_id, msg_id) VALUES (?, ?, ?, ?, ?)"
         try:
-            self.cursor.execute(query, (event["division"], event["type"], event["host_id"],
+            self.cursor.execute(query, (event["type"], event["host_id"],
                                         event["timestamp"].isoformat(), event["channel_id"], event["msg_id"]))
 
             query = "SELECT id FROM events"

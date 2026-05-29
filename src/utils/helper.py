@@ -41,9 +41,9 @@ async def build_events_embed(data, user, ctx):
     desc = ""
     for entry in data:
         event = mgr.get_event(entry[1])
-        channel = guild.get_channel(event[5])
-        msg = await channel.fetch_message(event[6])
-        timestamp = datetime.fromisoformat(event[4]).strftime("%d/%m/%Y %H:%M")
+        channel = guild.get_channel(event[4])
+        msg = await channel.fetch_message(event[5])
+        timestamp = datetime.fromisoformat(event[3]).strftime("%d/%m/%Y %H:%M")
         desc += (f"**{event[2]}:**\n"
                  f"`{timestamp}`\n"
                  f"{msg.jump_url}\n\n")
@@ -84,7 +84,6 @@ def get_original_log(msg_id):
         "host_id": event[3],
         "participants": [],
         "timestamp": datetime.now(),
-        "division": event[1],
         "channel_id": event[5],
         "msg_id": event[6]
     }
