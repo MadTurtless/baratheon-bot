@@ -51,11 +51,9 @@ class EventLogsManager(commands.Cog):
         If the dictionary returns as invalid, an error message will be sent and it, along with the message, will self-destruct.
         """
         if message.author.bot:
-            print("msg sent by bot")
             return
 
         if not message.channel.id == int(os.getenv("LOGS_CHANNEL_ID")):
-            print("msg not in correct channel")
             return
 
         log = parse_event_log(message)
@@ -81,11 +79,9 @@ class EventLogsManager(commands.Cog):
         """
 
         if payload.message.author.bot:
-            print("msg sent by bot")
             return
 
         if not payload.message.channel.id == int(os.getenv("LOGS_CHANNEL_ID")):
-            print("msg not in correct channel")
             return
 
         old_log = get_original_log(payload.message.id)
