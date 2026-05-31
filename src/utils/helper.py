@@ -99,3 +99,20 @@ def get_original_log(msg_id):
         log["participants"].append(i[0])
 
     return log
+
+
+def get_number_suffix(number):
+    last_two_digits = number % 100
+
+    if last_two_digits in [11, 12, 13]:
+        return "th"
+
+    match last_two_digits % 10:
+        case 1:
+            return "st"
+        case 2:
+            return "nd"
+        case 3:
+            return "rd"
+        case _:
+            return "th"
