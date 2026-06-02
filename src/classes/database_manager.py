@@ -31,7 +31,9 @@ class DatabaseManager:
         CREATE TABLE IF NOT EXISTS users
         (
             id                 INTEGER PRIMARY KEY,
-            nr_events_attended INTEGER DEFAULT 0
+            nr_events_attended INTEGER DEFAULT 0,
+            lvl                INTEGER DEFAULT 0,
+            xp                 INTEGER DEFAULT 0,
         );
         """
 
@@ -73,7 +75,7 @@ class DatabaseManager:
         """
         Adds a user using its id.
         """
-        query = "INSERT INTO users VALUES (?, 0)"
+        query = "INSERT INTO users(id) VALUES (?)"
 
         try:
             self.cursor.execute(query, (user_id,))
@@ -172,6 +174,16 @@ class DatabaseManager:
             logger.error(e)
             return -1
 
+    def add_user_xp(self, user_id: int, amount: int):
+        query = "UPDATE users SET xp = xp + ? WHERE id = ?"
+
+        try:
+            self.cursor.execute(query, (amount, user_id))
+            self.conn.commit()
+        except Exception as e:
+            logger.error(e)
+            return -1
+
     def get_event(self, event_id: int):
         """
         Get an event's database entry from its id.
@@ -208,19 +220,6 @@ class DatabaseManager:
 
         try:
             self.cursor.execute(query, (user_id,))
-            events = self.cursor.fetchall()
-            return events
-        except Exception as e:
-            logger.error(e)
-            return -1
-
-    def get_events_by_division(self, division: str):
-        """
-        Get all events from a division.
-        """
-        query = "SELECT * FROM events WHERE division = ?"
-        try:
-            self.cursor.execute(query, (division,))
             events = self.cursor.fetchall()
             return events
         except Exception as e:

@@ -50,7 +50,7 @@ async def build_events_embed(data, user, ctx):
 
     embed = discord.Embed(
         title=f"Events for {user.name}",
-        colour=discord.Colour.blue(),
+        colour=discord.Colour.yellow(),
         description=desc
     )
     return embed
