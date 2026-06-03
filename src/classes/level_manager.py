@@ -54,6 +54,9 @@ class LevelManager(commands.Cog):
             return
 
         try:
+            if not self.db.get_user(author_id):
+                self.db.add_user(author_id)
+
             self.db.add_user_xp(author_id, 5)
             user_xp = self.db.get_user_xp(author_id)
             current_lvl = self.db.get_user_level(author_id)
