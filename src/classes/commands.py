@@ -114,7 +114,7 @@ class Commands(commands.Cog):
         current_lvl = self.mngr.get_user_level(user.id)
 
         if not current_lvl:
-            self.mngr.add_user_level(user.id)
+            self.mngr.add_user(user.id)
             current_lvl = self.mngr.get_user_level(user.id)
 
         current_xp = self.mngr.get_user_xp(user.id)
@@ -133,7 +133,7 @@ class Commands(commands.Cog):
         current_lvl = self.mngr.get_user_level(user.id)
 
         if not current_lvl:
-            self.mngr.add_user_level(user.id)
+            self.mngr.add_user(user.id)
             current_lvl = self.mngr.get_user_level(user.id)
 
         current_xp = self.mngr.get_user_xp(user.id)
