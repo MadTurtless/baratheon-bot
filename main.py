@@ -58,7 +58,8 @@ async def main():
     It makes sure to add all cogs and then starts it.
     :return:
     """
-    extensions = ["src.classes.commands", "src.classes.event_logs_manager", "src.classes.join_manager", "src.classes.level_manager"]
+    extensions = ["src.classes.commands", "src.classes.event_logs_manager",
+                  "src.classes.join_manager", "src.classes.level_manager"]
 
     async with bot:
         for e in extensions:

@@ -33,7 +33,7 @@ class DatabaseManager:
             id                 INTEGER PRIMARY KEY,
             nr_events_attended INTEGER DEFAULT 0,
             lvl                INTEGER DEFAULT 0,
-            xp                 INTEGER DEFAULT 0,
+            xp                 INTEGER DEFAULT 0
         );
         """
 
@@ -180,6 +180,38 @@ class DatabaseManager:
         try:
             self.cursor.execute(query, (amount, user_id))
             self.conn.commit()
+        except Exception as e:
+            logger.error(e)
+            return -1
+
+    def get_user_xp(self, user_id: int):
+        query = "SELECT xp FROM users WHERE id = ?"
+
+        try:
+            self.cursor.execute(query, (user_id,))
+            xp = self.cursor.fetchone()[0]
+            return xp
+        except Exception as e:
+            logger.error(e)
+            return -1
+
+    def add_user_level(self, user_id: int, level: int):
+        query = "UPDATE users SET lvl = lvl + ? WHERE id = ?"
+
+        try:
+            self.cursor.execute(query, (level, user_id))
+            self.conn.commit()
+        except Exception as e:
+            logger.error(e)
+            return -1
+
+    def get_user_level(self, user_id: int):
+        query = "SELECT lvl FROM users WHERE id = ?"
+
+        try:
+            self.cursor.execute(query, (user_id,))
+            lvl = self.cursor.fetchone()[0]
+            return lvl
         except Exception as e:
             logger.error(e)
             return -1

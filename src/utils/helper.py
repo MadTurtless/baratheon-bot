@@ -1,3 +1,5 @@
+import math
+from collections import Counter
 from datetime import datetime
 
 import discord
@@ -116,3 +118,37 @@ def get_number_suffix(number):
             return "rd"
         case _:
             return "th"
+
+def calc_shannon_entropy(text: str):
+    """Implementation of Shannon Entropy to determine the complexity of the message"""
+    if not text:
+        return 0.0
+
+    if len(text) < 3:
+        return 0.0
+
+    counts = Counter(text)
+    total_chars = len(text)
+
+    entropy = 0.0
+    for count in counts.values():
+        p = count / total_chars
+        entropy -= p * math.log2(p)
+
+    return entropy
+
+def qualifies_for_xp(text: str) -> bool:
+    text = text.strip()
+    length = len(text)
+
+    if length < 5:
+        return False
+
+    entropy = calc_shannon_entropy(text)
+
+    if length < 15:
+        return entropy >= 2.2
+    elif length < 50:
+        return entropy >= 2.8
+    else:
+        return entropy >= 3.5
