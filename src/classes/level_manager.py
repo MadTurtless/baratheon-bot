@@ -81,7 +81,7 @@ class LevelManager(commands.Cog):
             current_lvl = self.db.get_user_level(author_id)
             next_lvl = current_lvl + 1
 
-            if user_xp > self.lvl_reqs[next_lvl]:
+            if user_xp >= self.lvl_reqs[next_lvl]:
                 self.db.add_user_level(author_id, 1)
 
                 if str(next_lvl) in self.lvl_roles:
