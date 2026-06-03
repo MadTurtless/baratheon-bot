@@ -54,7 +54,7 @@ class LevelManager(commands.Cog):
         if message.author.bot:
             return
 
-        if message.channel.id != os.getenv("XP_EARNABLE_CHANNEL_ID"):
+        if message.channel.id != int(os.getenv("XP_EARNABLE_CHANNEL_ID")):
             return
 
         if not qualifies_for_xp(message.content):
