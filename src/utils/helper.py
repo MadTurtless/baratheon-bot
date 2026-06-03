@@ -164,3 +164,11 @@ def is_server_booster(msg):
             return True
 
     return False
+
+def is_ascii(s):
+    """Returns True if the string contains only standard ASCII characters."""
+    try:
+        s.encode('ascii')
+        return True
+    except UnicodeEncodeError:
+        return False

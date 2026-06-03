@@ -1,12 +1,15 @@
 import io
 from PIL import Image, ImageDraw, ImageFont
 
+from src.utils.helper import is_ascii
+
 
 def create_profile_card(username: str, level: int, current_xp: int, next_lvl_xp: int, previous_xp_needed: int) -> io.BytesIO:
     width, height = 600, 200
 
     bg_path = "src/assets/images/profile-bg.png"
     font_path = "src/assets/fonts/Ancient Medium.ttf"
+    fallback_font_path = "src/assets/fonts/NotoSerif_Condensed-Regular.ttf"
 
     try:
         background = Image.open(str(bg_path)).convert("RGB")
@@ -18,7 +21,10 @@ def create_profile_card(username: str, level: int, current_xp: int, next_lvl_xp:
     draw = ImageDraw.Draw(image)
 
     try:
-        font_title = ImageFont.truetype(str(font_path), 32)
+        if is_ascii(username):
+            font_title = ImageFont.truetype(str(font_path), 32)
+        else:
+            font_title = ImageFont.truetype(str(fallback_font_path), 32)
         font_sub = ImageFont.truetype(str(font_path), 24)
     except IOError:
         font_title = font_sub = ImageFont.load_default()
