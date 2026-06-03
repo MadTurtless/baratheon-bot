@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.INFO,
 def _lvl_reqs():
     lvl_rqs = {}
     base_xp = 100
-    for i in range(1, 200):
+    for i in range(0, 200):
         req = math.ceil((base_xp * (i ** 1.5)) / 100) * 100
         lvl_rqs[i] = req
 
