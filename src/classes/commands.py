@@ -119,8 +119,9 @@ class Commands(commands.Cog):
 
         current_xp = self.mngr.get_user_xp(user.id)
         xp_needed = self.lvl_mgr.get_lvl_reqs()[current_lvl + 1]
+        previous_xp_needed = self.lvl_mgr.get_lvl_reqs()[current_lvl]
 
-        img_buffer = create_profile_card(user.display_name, current_lvl, current_xp, xp_needed)
+        img_buffer = create_profile_card(user.display_name, current_lvl, current_xp, xp_needed, previous_xp_needed)
         file = discord.File(img_buffer, filename="profile.png")
 
         await ctx.send(file=file)
