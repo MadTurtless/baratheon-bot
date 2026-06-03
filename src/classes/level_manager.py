@@ -60,6 +60,8 @@ class LevelManager(commands.Cog):
         if not qualifies_for_xp(message.content):
             return
 
+        base_xp = 5
+
         author_id = message.author.id
         current_time = time.time()
         cooldown_expiry = self._cooldowns.get(author_id, 0)
@@ -69,8 +71,10 @@ class LevelManager(commands.Cog):
 
         try:
             if not self.db.get_user(author_id):
-                print("Adding user", message.author)
                 self.db.add_user(author_id)
+
+            if message.author.is_premium_subscriber():
+                base_xp *= 2
 
             self.db.add_user_xp(author_id, 5)
             user_xp = self.db.get_user_xp(author_id)
