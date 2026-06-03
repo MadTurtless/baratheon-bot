@@ -69,6 +69,7 @@ class LevelManager(commands.Cog):
 
         try:
             if not self.db.get_user(author_id):
+                print("Adding user", message.author)
                 self.db.add_user(author_id)
 
             self.db.add_user_xp(author_id, 5)
