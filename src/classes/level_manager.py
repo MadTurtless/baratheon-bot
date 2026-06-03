@@ -1,14 +1,19 @@
 import json
 import logging
 import math
+import os
 import sys
 import time
 
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 from src.classes.database_manager import DatabaseManager
 from discord.ext import commands, tasks
 from src.utils.helper import qualifies_for_xp
+
+load_dotenv()
 
 logger = logging.getLogger("discord")
 logging.basicConfig(level=logging.INFO,
@@ -47,6 +52,9 @@ class LevelManager(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.bot:
+            return
+
+        if message.channel.id != os.getenv("XP_EARNABLE_CHANNEL_ID"):
             return
 
         if not qualifies_for_xp(message.content):
