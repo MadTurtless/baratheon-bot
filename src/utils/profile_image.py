@@ -9,7 +9,7 @@ def create_profile_card(username: str, level: int, current_xp: int, next_lvl_xp:
 
     bg_path = "src/assets/images/profile-bg.png"
     font_path = "src/assets/fonts/Ancient Medium.ttf"
-    fallback_font_path = "src/assets/fonts/NotoSerif_Condensed-Regular.ttf"
+    fallback_font_path = "src/assets/fonts/Arial-Unicode-MS.ttf"
 
     try:
         background = Image.open(str(bg_path)).convert("RGB")
