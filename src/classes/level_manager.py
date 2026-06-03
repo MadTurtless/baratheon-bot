@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 from src.classes.database_manager import DatabaseManager
 from discord.ext import commands, tasks
-from src.utils.helper import qualifies_for_xp
+from src.utils.helper import qualifies_for_xp, is_server_booster
 
 load_dotenv()
 
@@ -73,7 +73,7 @@ class LevelManager(commands.Cog):
             if not self.db.get_user(author_id):
                 self.db.add_user(author_id)
 
-            if message.author.is_premium_subscriber():
+            if is_server_booster(message):
                 base_xp *= 2
 
             self.db.add_user_xp(author_id, 5)

@@ -152,3 +152,13 @@ def qualifies_for_xp(text: str) -> bool:
         return entropy >= 2.8
     else:
         return entropy >= 3.5
+
+def is_server_booster(msg):
+    guild = msg.guild
+    booster_role = guild.premium_subscribers_role
+
+    for role in msg.author.roles:
+        if role.id == booster_role.id:
+            return True
+
+    return False
