@@ -21,3 +21,5 @@ requests==2.33.1
 tomlkit==0.14.0
 urllib3==2.6.3
 yarl==1.23.0
+
+pillow

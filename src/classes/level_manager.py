@@ -33,6 +33,9 @@ class LevelManager(commands.Cog):
         self._cooldowns = {}
         self.lvl_reqs = _lvl_reqs()
 
+    def get_lvl_reqs(self):
+        return self.lvl_reqs
+
     @tasks.loop(hours=1)
     async def clean_cooldown_dict(self):
         current_time = time.time()

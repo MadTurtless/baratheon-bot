@@ -12,8 +12,9 @@ from dotenv import load_dotenv, set_key
 
 from src.classes.database_manager import DatabaseManager
 from src.classes.jokes import Jokes
-from src.utils.helper import build_setup_embed, check_perms, build_events_embed
-from src.utils.helper import permitted_roles
+from src.classes.level_manager import LevelManager
+from src.utils.helper import build_setup_embed, check_perms, build_events_embed, permitted_roles
+from src.utils.profile_image import create_profile_card
 
 logger = logging.getLogger("discord")
 logging.basicConfig(level=logging.INFO,
@@ -52,6 +53,7 @@ class Commands(commands.Cog):
         """
         self.bot = bot
         self.mngr = DatabaseManager()
+        self.lvl_mgr = LevelManager(self.bot)
 
     @commands.hybrid_command(
         description="Send the embed message that will be used for reaction roles.")
@@ -99,6 +101,23 @@ class Commands(commands.Cog):
         joke_obj = Jokes()
         joke = joke_obj.get_joke()
         await ctx.send(joke)
+
+    @commands.hybrid_command()
+    async def profile(self, ctx):
+        user = ctx.author
+        current_lvl = self.mngr.get_user_level(user.id)
+
+        if not current_lvl:
+            self.mngr.add_user_level(user.id)
+            current_lvl = self.mngr.get_user_level(user.id)
+
+        current_xp = self.mngr.get_user_xp(user.id)
+        xp_needed = self.lvl_mgr.get_lvl_reqs()[current_lvl + 1]
+
+        img_buffer = create_profile_card(user.display_name, current_lvl, current_xp, xp_needed)
+        file = discord.File(img_buffer, filename="profile.png")
+
+        await ctx.send(file=file)
 
     @commands.hybrid_command()
     @check_perms()
