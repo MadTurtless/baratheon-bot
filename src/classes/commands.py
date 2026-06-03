@@ -84,7 +84,9 @@ class Commands(commands.Cog):
         dotenv_path = Path(".env")
         set_key(dotenv_path,"REACTION_ROLES_MESSAGE_ID", str(new_msg.id))
 
-    @commands.hybrid_command()
+    @commands.hybrid_command(
+        description="Check how many and which events you have attended."
+    )
     async def events(self, ctx, user: discord.User):
         is_high_rank = any(role.id in permitted_roles for role in ctx.author.roles)
         is_self = user.id == ctx.author.id
@@ -96,13 +98,17 @@ class Commands(commands.Cog):
         res = self.mngr.get_events_by_user(user.id)
         await ctx.send("An error occurred while getting events by user.") if res == -1 else await ctx.send(embed=await build_events_embed(res, user, ctx))
 
-    @commands.hybrid_command()
+    @commands.hybrid_command(
+        description="Get a joke. (This is from an API and randomised.)"
+    )
     async def joke(self, ctx):
         joke_obj = Jokes()
         joke = joke_obj.get_joke()
         await ctx.send(joke)
 
-    @commands.hybrid_command()
+    @commands.hybrid_command(
+        description="Check your current level and progress towards the next one."
+    )
     async def profile(self, ctx):
         user = ctx.author
         current_lvl = self.mngr.get_user_level(user.id)
@@ -119,7 +125,28 @@ class Commands(commands.Cog):
 
         await ctx.send(file=file)
 
-    @commands.hybrid_command()
+    @commands.hybrid_command(
+        description="Check another user's profile"
+    )
+    @check_perms()
+    async def uprofile(self, ctx, user: discord.User):
+        current_lvl = self.mngr.get_user_level(user.id)
+
+        if not current_lvl:
+            self.mngr.add_user_level(user.id)
+            current_lvl = self.mngr.get_user_level(user.id)
+
+        current_xp = self.mngr.get_user_xp(user.id)
+        xp_needed = self.lvl_mgr.get_lvl_reqs()[current_lvl + 1]
+
+        img_buffer = create_profile_card(user.display_name, current_lvl, current_xp, xp_needed)
+        file = discord.File(img_buffer, filename="profile.png")
+
+        await ctx.send(file=file)
+
+    @commands.hybrid_command(
+        description="Check the bot's status."
+    )
     @check_perms()
     async def status(self, ctx):
         status = os.getenv("STATUS")
