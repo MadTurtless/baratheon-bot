@@ -1,5 +1,6 @@
 import io
 import math
+import os
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -9,26 +10,29 @@ def create_profile_card(username: str, level: int, current_xp: int, next_lvl_xp:
     width, height = 600, 200
 
     # 1. Load the background image using your absolute path trick
-    current_dir = Path(__file__).resolve().parent
-    bg_path = "src/assets/profile-bg.png"
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    # 2. Step up out of 'classes' into 'src', then go into 'assets'
+    # This results in: /home/ubuntu/baratheon-bot/src/assets/profile_bg.png
+    BG_PATH = "src/assets/images/profile-bg.png"
+    FONT_PATH = "src/assets/fonts/Ancient Medium.ttf"
 
     try:
         # Open the image and resize it to fit our dimensions perfectly
-        background = Image.open(str(bg_path)).convert("RGB")
+        background = Image.open(str(BG_PATH)).convert("RGB")
         image = background.resize((width, height), Image.Resampling.LANCZOS)
     except IOError:
         # Fallback to solid color if the image file is missing
-        print(f"Could not find background image at {bg_path}, using fallback.")
+        print(f"Could not find background image at {BG_PATH}, using fallback.")
         image = Image.new("RGB", (width, height), (24, 25, 28))
 
     # 2. Attach our drawing tool to the loaded image
     draw = ImageDraw.Draw(image)
 
     # 3. Load Fonts
-    font_path = "src/assets/Ancient Medium.ttf"
     try:
-        font_title = ImageFont.truetype(str(font_path), 32)
-        font_sub = ImageFont.truetype(str(font_path), 24)
+        font_title = ImageFont.truetype(str(FONT_PATH), 32)
+        font_sub = ImageFont.truetype(str(FONT_PATH), 24)
     except IOError:
         font_title = font_sub = ImageFont.load_default()
 
