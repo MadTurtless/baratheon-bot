@@ -28,7 +28,7 @@ def create_profile_card(username: str, level: int, current_xp: int, next_lvl_xp:
     draw.text((430, 80), f"{current_xp} / {next_lvl_xp} XP", fill=(255, 255, 255), font=font_sub)
 
     draw.text((40, 150), f"{previous_xp_needed}", fill=(255, 255, 255), font=font_sub)
-    draw.text((515, 150), f"{next_lvl_xp}", fill=(255, 255, 255), font=font_sub)
+    draw.text((560, 150), f"{next_lvl_xp}", fill=(255, 255, 255), font=font_sub, anchor="ra")
     bar_x1, bar_y1 = 40, 120
     bar_x2, bar_y2 = 560, 145
     bar_width = bar_x2 - bar_x1
