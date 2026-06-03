@@ -1,12 +1,13 @@
+import json
 import logging
+import math
 import sys
 import time
 
-import math
+from pathlib import Path
 
 from src.classes.database_manager import DatabaseManager
 from discord.ext import commands, tasks
-
 from src.utils.helper import qualifies_for_xp
 
 logger = logging.getLogger("discord")
@@ -32,6 +33,8 @@ class LevelManager(commands.Cog):
         self.db = DatabaseManager()
         self._cooldowns = {}
         self.lvl_reqs = _lvl_reqs()
+        with open(Path("data/level_roles.json"), "r") as f:
+            self.lvl_roles = json.load(f)
 
     def get_lvl_reqs(self):
         return self.lvl_reqs
@@ -63,10 +66,17 @@ class LevelManager(commands.Cog):
             self.db.add_user_xp(author_id, 5)
             user_xp = self.db.get_user_xp(author_id)
             current_lvl = self.db.get_user_level(author_id)
+            next_lvl = current_lvl + 1
 
-            if user_xp > self.lvl_reqs[current_lvl + 1]:
+            if user_xp > self.lvl_reqs[next_lvl]:
                 self.db.add_user_level(author_id, 1)
-                logger.info(f"User {message.author} has achieved level {current_lvl + 1}")
+
+                if str(next_lvl) in self.lvl_roles:
+                    guild = message.guild
+                    role = guild.get_role(self.lvl_roles[str(next_lvl)])
+                    await message.author.add_roles(role)
+
+                logger.info(f"User {message.author} has achieved level {next_lvl}")
 
             self._cooldowns[author_id] = current_time + 1
         except Exception as e:
