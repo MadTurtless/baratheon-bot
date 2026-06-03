@@ -113,7 +113,7 @@ class Commands(commands.Cog):
         user = ctx.author
         current_lvl = self.mngr.get_user_level(user.id)
 
-        if not current_lvl:
+        if not self.mngr.get_user(user.id):
             self.mngr.add_user(user.id)
             current_lvl = self.mngr.get_user_level(user.id)
 
@@ -132,7 +132,7 @@ class Commands(commands.Cog):
     async def uprofile(self, ctx, user: discord.User):
         current_lvl = self.mngr.get_user_level(user.id)
 
-        if not current_lvl:
+        if not self.mngr.get_user(user.id):
             self.mngr.add_user(user.id)
             current_lvl = self.mngr.get_user_level(user.id)
 
