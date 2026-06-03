@@ -32,7 +32,6 @@ class LevelManager(commands.Cog):
         self.db = DatabaseManager()
         self._cooldowns = {}
         self.lvl_reqs = _lvl_reqs()
-        print(self.lvl_reqs)
 
     @tasks.loop(hours=1)
     async def clean_cooldown_dict(self):
@@ -58,11 +57,10 @@ class LevelManager(commands.Cog):
             self.db.add_user_xp(author_id, 5)
             user_xp = self.db.get_user_xp(author_id)
             current_lvl = self.db.get_user_level(author_id)
-            print(user_xp, self.lvl_reqs[current_lvl + 1])
 
             if user_xp > self.lvl_reqs[current_lvl + 1]:
                 self.db.add_user_level(author_id, 1)
-                print(f"User {message.author} has achieved level {current_lvl + 1}")
+                logger.info(f"User {message.author} has achieved level {current_lvl + 1}")
 
             self._cooldowns[author_id] = current_time + 1
         except Exception as e:
