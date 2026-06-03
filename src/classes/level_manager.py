@@ -76,7 +76,7 @@ class LevelManager(commands.Cog):
             if is_server_booster(message):
                 base_xp *= 2
 
-            self.db.add_user_xp(author_id, 5)
+            self.db.add_user_xp(author_id, base_xp)
             user_xp = self.db.get_user_xp(author_id)
             current_lvl = self.db.get_user_level(author_id)
             next_lvl = current_lvl + 1
