@@ -1,4 +1,5 @@
 import math
+import os
 from collections import Counter
 from datetime import datetime
 
@@ -155,7 +156,8 @@ def qualifies_for_xp(text: str) -> bool:
 
 def is_server_booster(msg):
     guild = msg.guild
-    booster_role = guild.premium_subscribers_role
+    booster_role_id = os.getenv("BOOSTER_ROLE_ID")
+    booster_role = guild.get_role(booster_role_id)
 
     for role in msg.author.roles:
         if role.id == booster_role.id:
