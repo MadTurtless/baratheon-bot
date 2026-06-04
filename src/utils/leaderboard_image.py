@@ -33,6 +33,8 @@ async def create_leaderboard_card(ctx, users: list) -> io.BytesIO:
 
         guild = ctx.guild
         user = guild.get_member(u[0])
+        if not user:
+            continue
         username = user.display_name
         level = u[2]
         xp = u[3]
