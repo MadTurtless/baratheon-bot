@@ -13,6 +13,7 @@ from dotenv import load_dotenv, set_key
 from src.classes.database_manager import DatabaseManager
 from src.classes.jokes import Jokes
 from src.classes.level_manager import LevelManager
+from src.classes.quotes_manager import QuotesManager
 from src.utils.helper import build_setup_embed, check_perms, build_events_embed, permitted_roles
 from src.utils.leaderboard_image import create_leaderboard_card
 from src.utils.profile_image import create_profile_card
@@ -106,6 +107,14 @@ class Commands(commands.Cog):
         joke_obj = Jokes()
         joke = joke_obj.get_joke()
         await ctx.send(joke)
+
+    @commands.hybrid_command(
+        description="Get a quote from GoT."
+    )
+    async def quote(self, ctx):
+        quote_mgr = QuotesManager()
+        quote = quote_mgr.get_quote()
+        await ctx.send(quote)
 
     @commands.hybrid_command(
         description="Check your current level and progress towards the next one."
