@@ -12,6 +12,8 @@ def get_character_from_quote(quote):
 
 
 def get_house_from_character(character):
+    if  not character["house"]:
+        return None
     with open("data/quotes/houses.json", "r") as f:
         data = json.load(f)["houses"]
     f.close()
@@ -32,6 +34,10 @@ class QuotesManager:
         character = get_character_from_quote(quote)
         house = get_house_from_character(character)
 
+        if house:
+            res = (f"> {quote['sentence']}\n"
+                    f"\\- {character['name']}, {house['name']}")
+            return res
         res = (f"> {quote['sentence']}\n"
-                   f"\\- {character['name']}, {house['name']}")
+               f"\\- {character['name']}")
         return res
