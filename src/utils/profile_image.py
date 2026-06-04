@@ -21,15 +21,16 @@ def create_profile_card(username: str, level: int, current_xp: int, next_lvl_xp:
     draw = ImageDraw.Draw(image)
 
     try:
-        if is_ascii(username):
-            font_title = ImageFont.truetype(str(font_path), 32)
-        else:
-            font_title = ImageFont.truetype(str(fallback_font_path), 32)
+        font_title = ImageFont.truetype(str(font_path), 32)
+        fallback_font = ImageFont.truetype(str(fallback_font_path), 32)
         font_sub = ImageFont.truetype(str(font_path), 24)
     except IOError:
         font_title = font_sub = ImageFont.load_default()
 
+    left, top, right, bottom = font_title.getbbox(username)
+
     draw.text((40, 40), username, fill=(217, 195, 56), font=font_title)
+    draw.text((right + 20, 38), username[-1], fill=(217, 195, 56), font=fallback_font)
     draw.text((40, 80), f"Level {level}", fill=(181, 163, 51), font=font_sub)
     draw.text((430, 80), f"{current_xp} / {next_lvl_xp} XP", fill=(255, 255, 255), font=font_sub)
 
