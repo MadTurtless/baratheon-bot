@@ -2,7 +2,7 @@ import io
 from PIL import Image, ImageDraw, ImageFont
 
 async def create_leaderboard_card(ctx, users: list) -> io.BytesIO:
-    width, height = 800, 600
+    width, height = 1300, 600
 
     bg_path = "src/assets/images/profile-bg.png"
     font_path = "src/assets/fonts/Arial-Unicode-MS.ttf"
@@ -28,7 +28,7 @@ async def create_leaderboard_card(ctx, users: list) -> io.BytesIO:
         x_offset = 0
 
         if i > 4:
-            x_offset = 400
+            x_offset = 600
             y_offset = (i - 5) * 110
 
         guild = ctx.guild
