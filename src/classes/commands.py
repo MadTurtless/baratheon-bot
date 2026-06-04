@@ -14,6 +14,7 @@ from src.classes.database_manager import DatabaseManager
 from src.classes.jokes import Jokes
 from src.classes.level_manager import LevelManager
 from src.utils.helper import build_setup_embed, check_perms, build_events_embed, permitted_roles
+from src.utils.leaderboard_image import create_leaderboard_card
 from src.utils.profile_image import create_profile_card
 
 logger = logging.getLogger("discord")
@@ -143,6 +144,29 @@ class Commands(commands.Cog):
 
         img_buffer = create_profile_card(user.display_name, current_lvl, current_xp, xp_needed, previous_xp_needed)
         file = discord.File(img_buffer, filename="profile.png")
+
+        await ctx.send(file=file)
+
+    @commands.hybrid_command(
+        description="Check the top ten users with most xp."
+    )
+    async def leaderboard(self, ctx):
+        users = self.mngr.get_top_ten_users()
+        users = [(339333861173362698, 1, 7, 1930, 1780434953.1862986), (430998414927593483, 1, 0, 0, 0),
+                 (1493541598720561202, 1, 0, 0, 0),
+                 (1493541598720561202, 1, 0, 0, 0),
+                 (1493541598720561202, 1, 0, 0, 0),
+                 (1493541598720561202, 1, 0, 0, 0),
+                 (1493541598720561202, 1, 0, 0, 0),
+                 (1493541598720561202, 1, 0, 0, 0),
+                 (1493541598720561202, 1, 0, 0, 0),
+                 (1493541598720561202, 1, 0, 0, 0)
+                 ]
+
+        await ctx.defer()
+
+        img_buffer = await create_leaderboard_card(ctx, users)
+        file = discord.File(img_buffer, filename="leaderboard.png")
 
         await ctx.send(file=file)
 

@@ -216,6 +216,16 @@ class DatabaseManager:
             logger.error(e)
             return -1
 
+    def get_top_ten_users(self):
+        query = "SELECT * FROM users ORDER BY xp DESC"
+
+        try:
+            self.cursor.execute(query)
+            return self.cursor.fetchmany(10)
+        except Exception as e:
+            logger.error(e)
+            return -1
+
     def get_event(self, event_id: int):
         """
         Get an event's database entry from its id.
