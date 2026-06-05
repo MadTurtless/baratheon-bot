@@ -83,12 +83,14 @@ class LevelManager(commands.Cog):
 
             if user_xp >= self.lvl_reqs[next_lvl]:
                 self.db.add_user_level(author_id, 1)
+                guild = message.guild
 
                 if str(next_lvl) in self.lvl_roles:
-                    guild = message.guild
                     role = guild.get_role(self.lvl_roles[str(next_lvl)])
                     await message.author.add_roles(role)
 
+                notification_channel = guild.get_channel(int(os.getenv("LEVEL_UP_MSG_CHANNEL_ID")))
+                await notification_channel.send(f"{message.author.mention} congratulations on achieving level {next_lvl}!")
                 logger.info(f"User {message.author} has achieved level {next_lvl}")
 
             self._cooldowns[author_id] = current_time + 1
