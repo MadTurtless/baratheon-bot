@@ -1,26 +1,19 @@
 import io
-from PIL import Image, ImageDraw, ImageFont
+from PIL import ImageDraw
+
+from src.utils.helper import load_image_generator_background, load_image_generator_font
+
 
 async def create_leaderboard_card(ctx, users: list) -> io.BytesIO:
     width, height = 1300, 600
 
-    bg_path = "src/assets/images/profile-bg.png"
-    font_path = "src/assets/fonts/Arial-Unicode-MS.ttf"
+    font_path = "src/assets/fonts/Ancient Medium.ttf"
+    fallback_font_path = "src/assets/fonts/Arial-Unicode-MS.ttf"
 
-    try:
-        background = Image.open(str(bg_path)).convert("RGB")
-        image = background.resize((width, height), Image.Resampling.LANCZOS)
-    except IOError:
-        print(f"Could not find background image at {bg_path}, using fallback.")
-        image = Image.new("RGB", (width, height), (24, 25, 28))
-
+    image = load_image_generator_background(width, height)
     draw = ImageDraw.Draw(image)
 
-    try:
-        font_title = ImageFont.truetype(str(font_path), 32)
-        font_sub = ImageFont.truetype(str(font_path), 24)
-    except IOError:
-        font_title = font_sub = ImageFont.load_default()
+    font_title, font_sub, fallback_font = load_image_generator_font(font_path, fallback_font_path)
 
     for i in range(len(users)):
         u = users[i]

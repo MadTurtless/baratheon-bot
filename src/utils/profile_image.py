@@ -1,31 +1,19 @@
 import io
 from PIL import Image, ImageDraw, ImageFont
 
-from src.utils.helper import is_ascii
+from src.utils.helper import is_ascii, load_image_generator_font, load_image_generator_background
 
 
 def create_profile_card(username: str, level: int, current_xp: int, next_lvl_xp: int, previous_xp_needed: int) -> io.BytesIO:
     width, height = 600, 200
 
-    bg_path = "src/assets/images/profile-bg.png"
     font_path = "src/assets/fonts/Ancient Medium.ttf"
     fallback_font_path = "src/assets/fonts/Arial-Unicode-MS.ttf"
 
-    try:
-        background = Image.open(str(bg_path)).convert("RGB")
-        image = background.resize((width, height), Image.Resampling.LANCZOS)
-    except IOError:
-        print(f"Could not find background image at {bg_path}, using fallback.")
-        image = Image.new("RGB", (width, height), (24, 25, 28))
-
+    image = load_image_generator_background(width, height)
     draw = ImageDraw.Draw(image)
 
-    try:
-        font_title = ImageFont.truetype(str(font_path), 32)
-        fallback_font = ImageFont.truetype(str(fallback_font_path), 32)
-        font_sub = ImageFont.truetype(str(font_path), 24)
-    except IOError:
-        font_title = font_sub = ImageFont.load_default()
+    font_title, font_sub, fallback_font = load_image_generator_font(font_path, fallback_font_path)
 
     left, top, right, bottom = font_title.getbbox(username)
 

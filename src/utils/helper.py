@@ -1,12 +1,16 @@
+import logging
 import math
 import os
 from collections import Counter
 from datetime import datetime
 
 import discord
+from PIL import Image, ImageFont
 from discord.ext import commands
 
 from src.classes.database_manager import DatabaseManager
+
+logger = logging.getLogger("discord")
 
 permitted_roles = [1509936313565184232, 1509939355618119760, 1509940198778081471,
                    1509941110821097544, 1509940476256456845, 1509957141262241965]
@@ -173,3 +177,26 @@ def is_ascii(s):
         return True
     except UnicodeEncodeError:
         return False
+
+def load_image_generator_background(width, height):
+    bg_path = "src/assets/images/profile-bg.png"
+
+    try:
+        background = Image.open(str(bg_path)).convert("RGB")
+        image = background.resize((width, height), Image.Resampling.LANCZOS)
+    except IOError:
+        logger.info(f"Could not find background image at {bg_path}, using fallback.")
+        image = Image.new("RGB", (width, height), (24, 25, 28))
+
+    return image
+
+def load_image_generator_font(font_path, fallback_font_path):
+    try:
+        font_title = ImageFont.truetype(str(font_path), 32)
+        font_sub = ImageFont.truetype(str(font_path), 24)
+        fallback_font = ImageFont.truetype(str(fallback_font_path), 32)
+    except IOError:
+        font_title = font_sub = ImageFont.load_default()
+        fallback_font = ImageFont.load_default()
+
+    return font_title, font_sub, fallback_font
