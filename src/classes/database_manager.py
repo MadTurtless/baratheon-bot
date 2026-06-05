@@ -11,259 +11,161 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - [%(levelname)s] - %(message)s",
                     handlers=[
                         logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a+"),
-                              logging.StreamHandler(stream=sys.stdout)
+                        logging.StreamHandler(stream=sys.stdout)
                     ])
 
 class DatabaseManager:
     def __init__(self):
         """
-        Sets up the sqlite3 database connection.
+        Stores the database path and initialises tables.
         """
-        self.conn = sqlite3.connect("data/db.sqlite")
-        self.cursor = self.conn.cursor()
+        self.db_path = "data/db.sqlite"
         self._create_tables()
 
+    def _execute(self, query: str, params: tuple = (), fetch: str = None, size: int = None):
+        """
+        A centralised wrapper that handles connections safely.
+        Automatically commits and closes to prevent database locking.
+        """
+        # Timeout allows the bot to wait up to 10 seconds if a lock occurs
+        with sqlite3.connect(self.db_path, timeout=10.0) as conn:
+            cursor = conn.cursor()
+            try:
+                cursor.execute(query, params)
+
+                if fetch == "one":
+                    return cursor.fetchone()
+                elif fetch == "many":
+                    return cursor.fetchmany(size)
+                elif fetch == "all":
+                    return cursor.fetchall()
+
+                # Connection automatically commits upon exiting the 'with' block
+                return 1
+            except Exception as e:
+                logger.error(f"Database error on query '{query}': {e}")
+                return -1
+
     def _create_tables(self):
-        """
-        Creates the tables in the database if they don't yet exist.
-        """
+        """Creates the tables in the database if they don't yet exist."""
         users_table = """
-        CREATE TABLE IF NOT EXISTS users
-        (
-            id                 INTEGER PRIMARY KEY,
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY,
             nr_events_attended INTEGER DEFAULT 0,
-            lvl                INTEGER DEFAULT 0,
-            xp                 INTEGER DEFAULT 0
-        );
-        """
+            lvl INTEGER DEFAULT 0,
+            xp INTEGER DEFAULT 0
+        );"""
 
         events_table = """
-        CREATE TABLE IF NOT EXISTS events
-        (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            type        TEXT,
-            host_id     INTEGER,
-            timestamp   TEXT,
-            channel_id  INTEGER,
-            msg_id      INTEGER,
+        CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT,
+            host_id INTEGER,
+            timestamp TEXT,
+            channel_id INTEGER,
+            msg_id INTEGER,
             FOREIGN KEY (host_id) REFERENCES users (id)
-        );
-        """
+        );"""
 
         participants_table = """
-        CREATE TABLE IF NOT EXISTS event_participants
-        (
+        CREATE TABLE IF NOT EXISTS event_participants (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             event_id INTEGER,
-            user_id  INTEGER,
+            user_id INTEGER,
             FOREIGN KEY (event_id) REFERENCES events (id),
             FOREIGN KEY (user_id) REFERENCES users (id)
-            );
-        """
+        );"""
 
-        try:
-            self.cursor.execute(users_table)
-            self.cursor.execute(events_table)
-            self.cursor.execute(participants_table)
-            self.conn.commit()
-            return 1
-        except Exception as e:
-            logger.error(e)
-            return -1
+        self._execute(users_table)
+        self._execute(events_table)
+        self._execute(participants_table)
 
     def add_user(self, user_id: int):
-        """
-        Adds a user using its id.
-        """
-        query = "INSERT INTO users(id) VALUES (?)"
-
-        try:
-            self.cursor.execute(query, (user_id,))
-            self.conn.commit()
-            return 1
-        except Exception as e:
-            logger.error(e)
-            return -1
+        """Adds a user using its id."""
+        query = "INSERT OR IGNORE INTO users(id) VALUES (?)"
+        return self._execute(query, (user_id,))
 
     def add_event_participants(self, event_id, participants):
-        """
-        Adds a list of participants to the event_participants table using their ids.
-        If a user isn't yet known, it will also be added here.
-        """
+        """Adds a list of participants and updates their event count."""
         try:
             for p_id in participants:
-                if not self.get_user(p_id):
-                    self.add_user(p_id)
+                # Ensure user exists (INSERT OR IGNORE handles this safely)
+                self.add_user(p_id)
 
-                query = "INSERT INTO event_participants(event_id, user_id) VALUES (?, ?)"
-                self.cursor.execute(query, (event_id, p_id))
-                query = "UPDATE users SET nr_events_attended = nr_events_attended + 1 WHERE id = ?"
-                self.cursor.execute(query, (p_id,))
-            self.conn.commit()
+                query_participant = "INSERT INTO event_participants(event_id, user_id) VALUES (?, ?)"
+                self._execute(query_participant, (event_id, p_id))
+
+                query_update_user = "UPDATE users SET nr_events_attended = nr_events_attended + 1 WHERE id = ?"
+                self._execute(query_update_user, (p_id,))
+            return 1
         except Exception as e:
             logger.error(e)
             return -1
 
     def get_event_participants(self, event_id: int):
-        """
-        Get a list of participants from the event_participants table using the event id.
-        """
+        """Get a list of participants from the event_participants table."""
         query = "SELECT user_id FROM event_participants WHERE event_id = ?"
-
-        try:
-            self.cursor.execute(query, (event_id,))
-            participants = self.cursor.fetchall()
-            return participants
-        except Exception as e:
-            logger.error(e)
-            return -1
+        return self._execute(query, (event_id,), fetch="all")
 
     def add_event(self, event):
+        """Adds an event to the events table and links participants."""
+        query = """
+        INSERT INTO events(type, host_id, timestamp, channel_id, msg_id) 
+        VALUES (?, ?, ?, ?, ?)
         """
-        Adds an event to the events table.
-        This function also calls the add_event_participants function.
-        Expected format for the event dict:
-        {
-        "type": string,
-        "host_id": int,
-        "participants": list of integers,
-        "timestamp": datetime,
-        "msg_id": int,
-        }
-        """
-        query = "INSERT INTO events(type, host_id, timestamp, channel_id, msg_id) VALUES (?, ?, ?, ?, ?)"
-        try:
-            self.cursor.execute(query, (event["type"], event["host_id"],
-                                        event["timestamp"].isoformat(), event["channel_id"], event["msg_id"]))
+        params = (event["type"], event["host_id"], event["timestamp"].isoformat(), event["channel_id"], event["msg_id"])
 
-            query = "SELECT id FROM events"
-            res = self.cursor.execute(query)
-            event_id = res.fetchall()[-1][0]
+        # Open connection manually here so we can grab the lastrowid safely in one atomic step
+        try:
+            with sqlite3.connect(self.db_path, timeout=10.0) as conn:
+                cursor = conn.cursor()
+                cursor.execute(query, params)
+                event_id = cursor.lastrowid # Grabs the ID of the row we literally just inserted
 
             self.add_event_participants(event_id, event["participants"])
-            self.conn.commit()
             return 1
         except Exception as e:
             logger.error(e)
             return -1
 
     def update_event_type(self, event_id, event_type):
-        """
-        Update the event's type
-        """
-        query = "UPDATE events SET type = ?  WHERE id = ?"
-
-        try:
-            self.cursor.execute(query, (event_type, event_id))
-            self.conn.commit()
-        except Exception as e:
-            logger.error(e)
-            return -1
+        query = "UPDATE events SET type = ? WHERE id = ?"
+        return self._execute(query, (event_type, event_id))
 
     def get_user(self, user_id: int):
-        """
-        Get a user's database entry from its id.
-        """
         query = "SELECT * FROM users WHERE id = ?"
-
-        try:
-            self.cursor.execute(query, (user_id,))
-            user = self.cursor.fetchone()
-            return user
-        except Exception as e:
-            logger.error(e)
-            return -1
+        return self._execute(query, (user_id,), fetch="one")
 
     def add_user_xp(self, user_id: int, amount: int):
         query = "UPDATE users SET xp = xp + ? WHERE id = ?"
-
-        try:
-            self.cursor.execute(query, (amount, user_id))
-            self.conn.commit()
-        except Exception as e:
-            logger.error(e)
-            return -1
+        return self._execute(query, (amount, user_id))
 
     def get_user_xp(self, user_id: int):
         query = "SELECT xp FROM users WHERE id = ?"
-
-        try:
-            self.cursor.execute(query, (user_id,))
-            xp = self.cursor.fetchone()[0]
-            return xp
-        except Exception as e:
-            logger.error(e)
-            return -1
+        res = self._execute(query, (user_id,), fetch="one")
+        return res[0] if res and res != -1 else -1
 
     def add_user_level(self, user_id: int, level: int):
         query = "UPDATE users SET lvl = lvl + ? WHERE id = ?"
-
-        try:
-            self.cursor.execute(query, (level, user_id))
-            self.conn.commit()
-        except Exception as e:
-            logger.error(e)
-            return -1
+        return self._execute(query, (level, user_id))
 
     def get_user_level(self, user_id: int):
         query = "SELECT lvl FROM users WHERE id = ?"
-
-        try:
-            self.cursor.execute(query, (user_id,))
-            lvl = self.cursor.fetchone()[0]
-            return lvl
-        except Exception as e:
-            logger.error(e)
-            return -1
+        res = self._execute(query, (user_id,), fetch="one")
+        return res[0] if res and res != -1 else -1
 
     def get_top_ten_users(self):
         query = "SELECT * FROM users ORDER BY xp DESC"
-
-        try:
-            self.cursor.execute(query)
-            return self.cursor.fetchmany(10)
-        except Exception as e:
-            logger.error(e)
-            return -1
+        return self._execute(query, fetch="many", size=10)
 
     def get_event(self, event_id: int):
-        """
-        Get an event's database entry from its id.
-        """
         query = "SELECT * FROM events WHERE id = ?"
-
-        try:
-            self.cursor.execute(query, (event_id,))
-            event = self.cursor.fetchone()
-            return event
-        except Exception as e:
-            logger.error(e)
-            return -1
+        return self._execute(query, (event_id,), fetch="one")
 
     def get_event_by_msg_id(self, msg_id: int):
-        """
-        Get an event's database entry from its message id.
-        """
         query = "SELECT * FROM events WHERE msg_id = ?"
-
-        try:
-            self.cursor.execute(query, (msg_id,))
-            event = self.cursor.fetchone()
-            return event
-        except Exception as e:
-            logger.error(e)
-            return -1
+        return self._execute(query, (msg_id,), fetch="one")
 
     def get_events_by_user(self, user_id: int):
-        """
-        Get all events by a user's id.
-        """
         query = "SELECT * FROM event_participants WHERE user_id = ?"
-
-        try:
-            self.cursor.execute(query, (user_id,))
-            events = self.cursor.fetchall()
-            return events
-        except Exception as e:
-            logger.error(e)
-            return -1
+        return self._execute(query, (user_id,), fetch="all")
