@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 
 from src.classes.database_manager import DatabaseManager
-from src.classes.jokes import Jokes
+from src.classes.jokes_manager import Jokes
 from src.classes.level_manager import LevelManager
 from src.classes.quotes_manager import QuotesManager
 from src.utils.helper import check_perms, build_events_embed, permitted_roles

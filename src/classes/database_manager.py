@@ -76,9 +76,27 @@ class DatabaseManager:
             FOREIGN KEY (user_id) REFERENCES users (id)
         );"""
 
+        invites_table = """
+        CREATE TABLE IF NOT EXISTS invites (
+            id TEXT PRIMARY KEY NOT NULL,
+            inviter_id INTEGER NOT NULL
+        );
+        """
+
+        invites_link_table = """
+        CREATE TABLE IF NOT EXISTS invites_link (
+            invite_id TEXT PRIMARY KEY NOT NULL,
+            invitee_id INTEGER NOT NULL,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (invite_id) REFERENCES invites (id)
+        )
+        """
+
         self._execute(users_table)
         self._execute(events_table)
         self._execute(participants_table)
+        self._execute(invites_table)
+        self._execute(invites_link_table)
 
     def add_user(self, user_id: int):
         """Adds a user using its id."""
@@ -169,3 +187,22 @@ class DatabaseManager:
     def get_events_by_user(self, user_id: int):
         query = "SELECT * FROM event_participants WHERE user_id = ?"
         return self._execute(query, (user_id,), fetch="all")
+
+    def create_invite(self, invite_id: str, inviter_id: int):
+        query = """INSERT INTO invites(id, inviter_id) VALUES (?, ?)"""
+        return self._execute(query, (invite_id, inviter_id))
+
+    def get_uses_per_invite(self):
+        query = "SELECT id FROM invites"
+        unique_invites = self._execute(query, fetch="all")
+        uses = {}
+        for invite in unique_invites:
+            invite_id = invite[0]
+            query = "SELECT * FROM invites_link WHERE invite_id = ?"
+            amount = len(self._execute(query, (invite_id,), fetch="all"))
+            uses[invite_id] = amount
+        return uses
+
+    def add_invite_link(self, invite_id: str, invitee_id: int,):
+        query = """INSERT INTO invites_link(invite_id, invitee_id) VALUES (?, ?)"""
+        return self._execute(query, (invite_id, invitee_id))

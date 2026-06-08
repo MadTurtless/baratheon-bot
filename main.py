@@ -34,6 +34,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
 intents.members = True
+intents.invites = True
 
 bot = commands.Bot(intents=intents, command_prefix="!")
 
@@ -59,7 +60,8 @@ async def main():
     :return:
     """
     extensions = ["src.classes.commands", "src.classes.event_logs_manager",
-                  "src.classes.join_manager", "src.classes.level_manager"]
+                  "src.classes.join_manager", "src.classes.level_manager",
+                  "src.classes.invites_manager"]
 
     async with bot:
         for e in extensions:
