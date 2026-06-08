@@ -135,9 +135,9 @@ class Commands(commands.Cog):
         amount = len(invites)
 
         if amount == 1:
-            await ctx.send(f"{ctx.author.mention}, you have {amount} invite!")
+            await ctx.send(f"{ctx.author.display_name} has {amount} invite!")
         else:
-            await ctx.send(f"{ctx.author.mention}, you have {amount} invites!")
+            await ctx.send(f"{ctx.author.display_name} has {amount} invites!")
 
     @commands.hybrid_command(
         description="Check the bot's status."
