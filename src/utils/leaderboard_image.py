@@ -7,7 +7,7 @@ from src.utils.helper import load_image_generator_background, load_image_generat
 async def create_leaderboard_card(ctx, users: list) -> io.BytesIO:
     width, height = 1300, 600
 
-    font_path = "src/assets/fonts/Ancient Medium.ttf"
+    font_path = "src/assets/fonts/Arial-Unicode-MS.ttf"
     fallback_font_path = "src/assets/fonts/Arial-Unicode-MS.ttf"
 
     image = load_image_generator_background(width, height)
