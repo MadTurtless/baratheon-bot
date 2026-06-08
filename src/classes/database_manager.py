@@ -85,8 +85,10 @@ class DatabaseManager:
 
         invites_link_table = """
         CREATE TABLE IF NOT EXISTS invites_link (
-            invite_id TEXT PRIMARY KEY NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            invite_id TEXT NOT NULL,
             invitee_id INTEGER NOT NULL,
+            status TEXT NOT NULL,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (invite_id) REFERENCES invites (id)
         )
@@ -107,7 +109,6 @@ class DatabaseManager:
         """Adds a list of participants and updates their event count."""
         try:
             for p_id in participants:
-                # Ensure user exists (INSERT OR IGNORE handles this safely)
                 self.add_user(p_id)
 
                 query_participant = "INSERT INTO event_participants(event_id, user_id) VALUES (?, ?)"
@@ -204,5 +205,21 @@ class DatabaseManager:
         return uses
 
     def add_invite_link(self, invite_id: str, invitee_id: int,):
-        query = """INSERT INTO invites_link(invite_id, invitee_id) VALUES (?, ?)"""
-        return self._execute(query, (invite_id, invitee_id))
+        query = """SELECT * FROM invites_link WHERE invitee_id = ?"""
+        user = self._execute(query, (invitee_id,), fetch="one")
+
+        if user:
+            query = """UPDATE invites_link SET status = ? WHERE invitee_id = ?"""
+            return self._execute(query, ("joined", invitee_id), fetch="all")
+
+        query = """INSERT INTO invites_link(invite_id, invitee_id, status) VALUES (?, ?, ?)"""
+        return self._execute(query, (invite_id, invitee_id, "joined"))
+
+    def remove_invite_link(self, invitee_id: int):
+        query = """UPDATE invites_link SET status = ? WHERE invitee_id = ?"""
+        return self._execute(query, ("left", invitee_id),)
+
+    def get_invites_by_user(self, user_id: int):
+        query = "SELECT * FROM invites_link LEFT JOIN invites ON invites.id = invites_link.invite_id WHERE inviter_id = ? AND status = ?"
+
+        return self._execute(query, (user_id, "joined"), fetch="all")

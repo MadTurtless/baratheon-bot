@@ -11,7 +11,6 @@ class InvitesManager(commands.Cog):
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite: discord.Invite):
-        print("Invite created")
         self.db.create_invite(invite.id, invite.inviter.id)
 
     @commands.Cog.listener()
@@ -26,7 +25,9 @@ class InvitesManager(commands.Cog):
                 self.db.add_invite_link(used_invite_id, member.id)
                 break
 
-
+    @commands.Cog.listener()
+    async def on_member_remove(self, member: discord.Member):
+        self.db.remove_invite_link(member.id)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(InvitesManager(bot))

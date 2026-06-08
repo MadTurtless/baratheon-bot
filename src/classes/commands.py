@@ -122,6 +122,19 @@ class Commands(commands.Cog):
         await ctx.send(file=file)
 
     @commands.hybrid_command(
+        description="Check how many people you've invited."
+    )
+    async def invites(self, ctx: commands.Context):
+        user = ctx.author
+        invites = self.db.get_invites_by_user(user.id)
+        amount = len(invites)
+
+        if amount == 1:
+            await ctx.send(f"{ctx.author.mention}, you have {amount} invite!")
+        else:
+            await ctx.send(f"{ctx.author.mention}, you have {amount} invites!")
+
+    @commands.hybrid_command(
         description="Check the bot's status."
     )
     @check_perms()
