@@ -11,6 +11,7 @@ class InvitesManager(commands.Cog):
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite: discord.Invite):
+        print(f"{invite.inviter} created a new invite!")
         self.db.create_invite(invite.id, invite.inviter.id)
 
     @commands.Cog.listener()
