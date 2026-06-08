@@ -125,7 +125,12 @@ class Commands(commands.Cog):
         description="Check how many people you've invited."
     )
     async def invites(self, ctx: commands.Context):
-        user = ctx.author
+        await self.uinvites(ctx, ctx.author)
+
+    @commands.hybrid_command(
+        description="Check how many people another user has invited."
+    )
+    async def uinvites(self, ctx: commands.Context, user: discord.User):
         invites = self.db.get_invites_by_user(user.id)
         amount = len(invites)
 
