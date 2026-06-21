@@ -116,7 +116,7 @@ class Commands(commands.Cog):
 
         users = self.db.get_top_ten_users()
 
-        img_buffer = await create_leaderboard_card(ctx, users)
+        img_buffer = await create_leaderboard_card(ctx, users, self.bot)
         file = discord.File(img_buffer, filename="leaderboard.png")
 
         await ctx.send(file=file)

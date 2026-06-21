@@ -4,7 +4,7 @@ from PIL import ImageDraw
 from src.utils.helper import load_image_generator_background, load_image_generator_font
 
 
-async def create_leaderboard_card(ctx, users: list) -> io.BytesIO:
+async def create_leaderboard_card(ctx, users: list, bot) -> io.BytesIO:
     width, height = 1300, 600
 
     font_path = "src/assets/fonts/Arial-Unicode-MS.ttf"
@@ -27,8 +27,10 @@ async def create_leaderboard_card(ctx, users: list) -> io.BytesIO:
         guild = ctx.guild
         user = guild.get_member(u[0])
         if not user:
-            continue
-        username = user.display_name
+            user = await bot.fetch_user(u[0])
+            username = user.name
+        else:
+            username = user.display_name
         level = u[2]
         xp = u[3]
 
