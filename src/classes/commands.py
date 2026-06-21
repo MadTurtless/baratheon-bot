@@ -12,8 +12,9 @@ from src.classes.jokes_manager import Jokes
 from src.classes.level_manager import LevelManager
 from src.classes.quotes_manager import QuotesManager
 from src.utils.helper import check_perms, build_events_embed, permitted_roles
-from src.utils.leaderboard_image import create_leaderboard_card
-from src.utils.profile_image import create_profile_card
+from src.utils.image_generators.invleaderboard_image import create_invleaderboard_card
+from src.utils.image_generators.leaderboard_image import create_leaderboard_card
+from src.utils.image_generators.profile_image import create_profile_card
 
 logger = logging.getLogger("discord")
 
@@ -138,6 +139,17 @@ class Commands(commands.Cog):
             await ctx.send(f"{user.display_name} has {amount} invite!")
         else:
             await ctx.send(f"{user.display_name} has {amount} invites!")
+
+    @commands.hybrid_command(
+        description="Check the top ten users who have invited the most people"
+    )
+    async def invleaderboard(self, ctx: commands.Context):
+        inviters = self.db.get_top_inviters()
+
+        img_buffer = await create_invleaderboard_card(ctx, inviters, self.bot)
+        file = discord.File(img_buffer, filename="leaderboard.png")
+
+        await ctx.send(file=file)
 
     @commands.hybrid_command(
         description="Check the bot's status."

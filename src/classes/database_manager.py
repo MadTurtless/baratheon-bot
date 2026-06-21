@@ -111,10 +111,13 @@ class DatabaseManager:
             for p_id in participants:
                 self.add_user(p_id)
 
-                query_participant = "INSERT INTO event_participants(event_id, user_id) VALUES (?, ?)"
+                query_participant = ("INSERT INTO event_participants(event_id, user_id) "
+                                     "VALUES (?, ?)")
                 self._execute(query_participant, (event_id, p_id))
 
-                query_update_user = "UPDATE users SET nr_events_attended = nr_events_attended + 1 WHERE id = ?"
+                query_update_user = ("UPDATE users "
+                                     "SET nr_events_attended = nr_events_attended + 1 "
+                                     "WHERE id = ?")
                 self._execute(query_update_user, (p_id,))
             return 1
         except Exception as e:
@@ -123,7 +126,9 @@ class DatabaseManager:
 
     def get_event_participants(self, event_id: int):
         """Get a list of participants from the event_participants table."""
-        query = "SELECT user_id FROM event_participants WHERE event_id = ?"
+        query = ("SELECT user_id "
+                 "FROM event_participants "
+                 "WHERE event_id = ?")
         return self._execute(query, (event_id,), fetch="all")
 
     def add_event(self, event):
@@ -148,78 +153,121 @@ class DatabaseManager:
             return -1
 
     def update_event_type(self, event_id, event_type):
-        query = "UPDATE events SET type = ? WHERE id = ?"
+        query = ("UPDATE events "
+                 "SET type = ? "
+                 "WHERE id = ?")
         return self._execute(query, (event_type, event_id))
 
     def get_user(self, user_id: int):
-        query = "SELECT * FROM users WHERE id = ?"
+        query = ("SELECT * "
+                 "FROM users "
+                 "WHERE id = ?")
         return self._execute(query, (user_id,), fetch="one")
 
     def add_user_xp(self, user_id: int, amount: int):
-        query = "UPDATE users SET xp = xp + ? WHERE id = ?"
+        query = ("UPDATE users "
+                 "SET xp = xp + ? "
+                 "WHERE id = ?")
         return self._execute(query, (amount, user_id))
 
     def get_user_xp(self, user_id: int):
-        query = "SELECT xp FROM users WHERE id = ?"
+        query = ("SELECT xp "
+                 "FROM users "
+                 "WHERE id = ?")
         res = self._execute(query, (user_id,), fetch="one")
         return res[0] if res and res != -1 else -1
 
     def add_user_level(self, user_id: int, level: int):
-        query = "UPDATE users SET lvl = lvl + ? WHERE id = ?"
+        query = ("UPDATE users "
+                 "SET lvl = lvl + ? "
+                 "WHERE id = ?")
         return self._execute(query, (level, user_id))
 
     def get_user_level(self, user_id: int):
-        query = "SELECT lvl FROM users WHERE id = ?"
+        query = ("SELECT lvl F"
+                 "ROM users "
+                 "WHERE id = ?")
         res = self._execute(query, (user_id,), fetch="one")
         return res[0] if res and res != -1 else -1
 
     def get_top_ten_users(self):
-        query = "SELECT * FROM users ORDER BY xp DESC"
+        query = ("SELECT * "
+                 "FROM users "
+                 "ORDER BY xp DESC")
         return self._execute(query, fetch="many", size=10)
 
     def get_event(self, event_id: int):
-        query = "SELECT * FROM events WHERE id = ?"
+        query = ("SELECT * "
+                 "FROM events "
+                 "WHERE id = ?")
         return self._execute(query, (event_id,), fetch="one")
 
     def get_event_by_msg_id(self, msg_id: int):
-        query = "SELECT * FROM events WHERE msg_id = ?"
+        query = ("SELECT * "
+                 "FROM events "
+                 "WHERE msg_id = ?")
         return self._execute(query, (msg_id,), fetch="one")
 
     def get_events_by_user(self, user_id: int):
-        query = "SELECT * FROM event_participants WHERE user_id = ?"
+        query = ("SELECT * "
+                 "FROM event_participants "
+                 "WHERE user_id = ?")
         return self._execute(query, (user_id,), fetch="all")
 
     def create_invite(self, invite_id: str, inviter_id: int):
-        query = """INSERT INTO invites(id, inviter_id) VALUES (?, ?)"""
+        query = """INSERT INTO invites(id, inviter_id) 
+                   VALUES (?, ?)"""
         return self._execute(query, (invite_id, inviter_id))
 
     def get_uses_per_invite(self):
-        query = "SELECT id FROM invites"
+        query = ("SELECT id "
+                 "FROM invites")
         unique_invites = self._execute(query, fetch="all")
         uses = {}
         for invite in unique_invites:
             invite_id = invite[0]
-            query = "SELECT * FROM invites_link WHERE invite_id = ?"
+            query = ("SELECT * "
+                     "FROM invites_link "
+                     "WHERE invite_id = ?")
             amount = len(self._execute(query, (invite_id,), fetch="all"))
             uses[invite_id] = amount
         return uses
 
     def add_invite_link(self, invite_id: str, invitee_id: int,):
-        query = """SELECT * FROM invites_link WHERE invitee_id = ?"""
+        query = """SELECT * 
+                   FROM invites_link 
+                   WHERE invitee_id = ?"""
         user = self._execute(query, (invitee_id,), fetch="one")
 
         if user:
-            query = """UPDATE invites_link SET status = ? WHERE invitee_id = ?"""
+            query = """UPDATE invites_link 
+                       SET status = ? 
+                       WHERE invitee_id = ?"""
             return self._execute(query, ("joined", invitee_id), fetch="all")
 
-        query = """INSERT INTO invites_link(invite_id, invitee_id, status) VALUES (?, ?, ?)"""
+        query = """INSERT INTO invites_link(invite_id, invitee_id, status) 
+                   VALUES (?, ?, ?)"""
         return self._execute(query, (invite_id, invitee_id, "joined"))
 
     def remove_invite_link(self, invitee_id: int):
-        query = """UPDATE invites_link SET status = ? WHERE invitee_id = ?"""
+        query = """UPDATE invites_link 
+                   SET status = ? 
+                   WHERE invitee_id = ?"""
         return self._execute(query, ("left", invitee_id),)
 
     def get_invites_by_user(self, user_id: int):
-        query = "SELECT * FROM invites_link LEFT JOIN invites ON invites.id = invites_link.invite_id WHERE inviter_id = ? AND status = ?"
+        query = ("SELECT * "
+                 "FROM invites_link "
+                 "LEFT JOIN invites ON invites.id = invites_link.invite_id "
+                 "WHERE inviter_id = ? AND status = ?")
 
         return self._execute(query, (user_id, "joined"), fetch="all")
+
+    def get_top_inviters(self):
+        query = ("SELECT invites.inviter_id, COUNT(invites.id) AS total_invites "
+                 "FROM invites_link "
+                 "LEFT JOIN invites ON invites.id = invites_link.invite_id "
+                 "GROUP BY invites.inviter_id "
+                 "ORDER BY total_invites DESC")
+
+        return self._execute(query, fetch="many", size=10)
