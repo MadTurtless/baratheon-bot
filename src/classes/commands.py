@@ -10,7 +10,6 @@ from discord.ext import commands
 from src.classes.database_manager import DatabaseManager
 from src.classes.jokes_manager import Jokes
 from src.classes.level_manager import LevelManager
-from src.classes.logger import BotLogger
 from src.classes.quotes_manager import QuotesManager
 from src.utils.helper import check_perms, build_events_embed, permitted_roles
 from src.utils.image_generators.invleaderboard_image import create_invleaderboard_card
@@ -33,7 +32,6 @@ class Commands(commands.Cog):
         self.lvl_mgr = LevelManager(self.bot)
         self.joke_mgr = Jokes()
         self.quote_mgr = QuotesManager()
-        self.logger = BotLogger("discord")
 
     @commands.hybrid_command(
         description="Check how many and which events you have attended."
