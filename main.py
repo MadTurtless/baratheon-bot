@@ -18,17 +18,34 @@ from discord.ext import commands
 
 from dotenv import load_dotenv
 
+old_factory = logging.getLogRecordFactory()
+
+def record_factory(*args, **kwargs):
+    record = old_factory(*args, **kwargs)
+
+    if record.levelno >= logging.ERROR:
+        record.file_info = f" - ({record.filename}:{record.lineno})"
+    else:
+        record.file_info = ""
+
+    return record
+
+logging.setLogRecordFactory(record_factory)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - [%(levelname)s]%(file_info)s - %(message)s",
+    handlers=[
+        logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a+"),
+        logging.StreamHandler(stream=sys.stdout)
+    ]
+)
+
+logger = logging.getLogger("discord")
+
 load_dotenv()
 
 token = os.getenv("DISCORD_TOKEN")
-
-logger = logging.getLogger("discord")
-logging.basicConfig(level=logging.INFO,
-                    format="%(asctime)s - [%(levelname)s] - %(message)s",
-                    handlers=[
-                        logging.FileHandler(filename="discord.log", encoding="utf-8", mode="a+"),
-                              logging.StreamHandler(stream=sys.stdout)
-                    ])
 
 intents = discord.Intents.default()
 intents.message_content = True
