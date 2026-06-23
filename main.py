@@ -1,11 +1,14 @@
 """
-Arryn Bot - v1.0.1
+Baratheon Bot - v1.1.0
 Description:
-This Discord bot is used for administrative tasks in the House Arryn server within the EOV genre.
+This Discord bot is used for administrative tasks in the House Baratheon server within the KOTR genre.
 Current functionality:
 Reaction Roles
-Planned functionality:
 Event logging
+Welcome Messages
+Levelling System
+Invite Tracking
+Jokes & Quotes
 """
 
 import asyncio
