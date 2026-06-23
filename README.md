@@ -18,7 +18,7 @@ By default, server boosters will enjoy **double xp**.
 
 **Invite Tracking:** Track how many invites each member has. This can be used to reward recruitment.
 
-**Profile Cards:** Displays user profiles and leaderboards as dynamically generated images using the Pillow library.
+**Profile Cards:** Displays user profiles and leaderboards as dynamically generated images using the `Pillow` library.
 ## Commands
 ### Leveling & Profile
 * `/profile` - Check your current level, total XP, and progress chart.
